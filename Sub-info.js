@@ -23,11 +23,11 @@
     content.push(`Reminder: ${percentage}% of data has been used.`);
   } else {
     if (resetDayLeft && expireDaysLeft) {
-      content.push(`Reminder: Reset in ${resetDayLeft} day(s), expires in ${expireDaysLeft} day(s).`);
+      content.push(`Reset in ${resetDayLeft} day(s), expires in ${expireDaysLeft} day(s).`);
     } else if (resetDayLeft) {
-      content.push(`Reminder: Data will be reset in ${resetDayLeft} day(s).`);
+      content.push(`Data will be reset in ${resetDayLeft} day(s).`);
     } else if (expireDaysLeft) {
-      content.push(`Reminder: Plan will expire in ${expireDaysLeft} day(s).`);
+      content.push(`Plan will expire in ${expireDaysLeft} day(s).`);
     }
     
     // 到期时间（日期）显示
