@@ -20,7 +20,7 @@
   // 判断是否为不限时套餐
   if (!resetDayLeft && !expireDaysLeft) {
     let percentage = ((used / total) * 100).toFixed(1);
-    content.push(`Reminder: ${percentage}% of data has been used.`);
+    content.push(`${percentage}% of data has been used.`);
   } else {
     if (resetDayLeft && expireDaysLeft) {
       content.push(`Reset in ${resetDayLeft} day(s), expires in ${expireDaysLeft} day(s).`);
