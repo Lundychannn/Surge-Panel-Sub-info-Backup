@@ -2,7 +2,6 @@
  * 作者：cc63 & ChatGPT 優化版
  * 修改更新時間：2025年4月2日
  ***********/
-console.log("面板刷新執行於: " + new Date().toISOString());
 
 (async () => {
   let args = getArgs();
