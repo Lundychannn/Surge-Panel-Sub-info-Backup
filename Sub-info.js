@@ -1,14 +1,17 @@
-/**********
-* 作者：cc63&ChatGPT
-* 更新时间：2024年1月20日
-**********/
+/***********
+ * 作者：cc63 & ChatGPT 優化版
+ * 修改更新時間：2025年4月2日
+ ***********/
+console.log("面板刷新執行於: " + new Date().toISOString());
 
 (async () => {
   let args = getArgs();
   let info = await getDataInfo(args.url);
-  
-  // 如果没有信息，则直接结束
-  if (!info) return $done();
+
+  if (!info) {
+    console.log("未取得流量資訊，可能伺服器未返回 subscription-userinfo。");
+    return $done();
+  }
 
   let resetDayLeft = getRemainingDays(parseInt(args["reset_day"]));
   let expireDaysLeft = getExpireDaysLeft(args.expire || info.expire);
@@ -17,7 +20,6 @@
   let total = info.total;
   let content = [`Usage: ${bytesToSize(used)} / ${bytesToSize(total)}`];
 
-  // 判断是否为不限时套餐
   if (!resetDayLeft && !expireDaysLeft) {
     let percentage = ((used / total) * 100).toFixed(1);
     content.push(`${percentage}% of data has been used.`);
@@ -29,8 +31,7 @@
     } else if (expireDaysLeft) {
       content.push(`Plan will expire in ${expireDaysLeft} day(s).`);
     }
-    
-    // 到期时间（日期）显示
+
     if (expireDaysLeft) {
       content.push(`Expired: ${formatTime(args.expire || info.expire)}`);
     }
@@ -54,23 +55,29 @@ function getArgs() {
 }
 
 function getUserInfo(url) {
-  let request = { headers: { "User-Agent": "Quantumult%20X" }, url };
+  let request = {
+    headers: { "User-Agent": "Quantumult X" }, // 提高成功機率
+    url
+  };
   return new Promise((resolve, reject) =>
     $httpClient.get(request, (err, resp) => {
       if (err != null) {
+        console.log("請求錯誤:", err);
         reject(err);
         return;
       }
       if (resp.status !== 200) {
+        console.log("請求失敗，HTTP 狀態碼:", resp.status);
         reject(resp.status);
         return;
       }
+      console.log("回傳 Headers:", JSON.stringify(resp.headers, null, 2));
       let header = Object.keys(resp.headers).find((key) => key.toLowerCase() === "subscription-userinfo");
       if (header) {
         resolve(resp.headers[header]);
         return;
       }
-      reject("链接响应头不带有流量信息");
+      reject("伺服器未包含 subscription-userinfo header");
     })
   );
 }
@@ -80,7 +87,7 @@ async function getDataInfo(url) {
     .then((data) => [null, data])
     .catch((err) => [err, null]);
   if (err) {
-    console.log(err);
+    console.log("取得訂閱資訊失敗:", err);
     return;
   }
 
@@ -100,18 +107,14 @@ function getRemainingDays(resetDay) {
   let month = now.getMonth();
   let year = now.getFullYear();
 
-  // 计算当前月份和下个月份的天数
   let daysInThisMonth = new Date(year, month + 1, 0).getDate();
   let daysInNextMonth = new Date(year, month + 2, 0).getDate();
 
-  // 如果重置日大于当前月份的天数，则在当月的最后一天重置
   resetDay = Math.min(resetDay, daysInThisMonth);
 
   if (resetDay > today) {
-    // 如果重置日在本月内
     return resetDay - today;
   } else {
-    // 如果重置日在下个月，确保不超过下个月的天数
     resetDay = Math.min(resetDay, daysInNextMonth);
     return daysInThisMonth - today + resetDay;
   }
@@ -123,11 +126,9 @@ function getExpireDaysLeft(expire) {
   let now = new Date().getTime();
   let expireTime;
 
-  // 检查是否为时间戳
   if (/^[\d.]+$/.test(expire)) {
     expireTime = parseInt(expire) * 1000;
   } else {
-    // 尝试解析YYYY-MM-DD格式的日期
     expireTime = new Date(expire).getTime();
   }
 
@@ -138,18 +139,17 @@ function getExpireDaysLeft(expire) {
 function bytesToSize(bytes) {
   if (bytes === 0) return "0B";
   let k = 1024;
-  let sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  let sizes = ["B", "KB", "MB", "GB", "TB"];
   let i = Math.floor(Math.log(bytes) / Math.log(k));
   return (bytes / Math.pow(k, i)).toFixed(2) + " " + sizes[i];
 }
 
 function formatTime(time) {
-  // 检查时间戳是否为秒单位，如果是，则转换为毫秒
   if (time < 1000000000000) time *= 1000;
 
   let dateObj = new Date(time);
   let year = dateObj.getFullYear();
   let month = dateObj.getMonth() + 1;
   let day = dateObj.getDate();
-  return day + "/" + month + "/" + year;
+  return `${day}/${month}/${year}`;
 }
