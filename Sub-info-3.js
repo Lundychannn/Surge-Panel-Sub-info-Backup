@@ -1,16 +1,14 @@
 /***********
  * 作者：cc63 & ChatGPT 優化版
- * 腳本名稱：3號機場
  * 修改更新時間：2025年4月2日
  ***********/
-console.log("【3號機場】面板刷新執行於: " + new Date().toISOString());
 
 (async () => {
   let args = getArgs();
   let info = await getDataInfo(args.url);
 
   if (!info) {
-    console.log("【3號機場】未取得流量資訊，可能伺服器未返回 subscription-userinfo。");
+    console.log("3號機場未取得流量資訊，可能伺服器未返回 subscription-userinfo。");
     return $done();
   }
 
@@ -32,6 +30,7 @@ console.log("【3號機場】面板刷新執行於: " + new Date().toISOString()
     } else if (expireDaysLeft) {
       content.push(`Plan will expire in ${expireDaysLeft} day(s).`);
     }
+
     if (expireDaysLeft) {
       content.push(`Expired: ${formatTime(args.expire || info.expire)}`);
     }
@@ -56,29 +55,28 @@ function getArgs() {
 
 function getUserInfo(url) {
   let request = {
-    headers: { "User-Agent": "Quantumult X" },
+    headers: { "User-Agent": "Quantumult X" }, // 提高成功機率
     url
   };
   return new Promise((resolve, reject) =>
     $httpClient.get(request, (err, resp) => {
-      console.log("【3號機場】發送請求至：", request.url);
       if (err != null) {
-        console.log("【3號機場】請求錯誤:", err);
+        console.log("3號機場請求錯誤:", err);
         reject(err);
         return;
       }
       if (resp.status !== 200) {
-        console.log("【3號機場】HTTP 狀態碼:", resp.status);
+        console.log("3號機場請求失敗，HTTP 狀態碼:", resp.status);
         reject(resp.status);
         return;
       }
-      console.log("【3號機場】回傳 Headers:", JSON.stringify(resp.headers, null, 2));
+      console.log("3號機場回傳 Headers:", JSON.stringify(resp.headers, null, 2));
       let header = Object.keys(resp.headers).find((key) => key.toLowerCase() === "subscription-userinfo");
       if (header) {
         resolve(resp.headers[header]);
         return;
       }
-      reject("【3號機場】伺服器未包含 subscription-userinfo header");
+      reject("3號機場伺服器未包含 subscription-userinfo header");
     })
   );
 }
@@ -88,7 +86,7 @@ async function getDataInfo(url) {
     .then((data) => [null, data])
     .catch((err) => [err, null]);
   if (err) {
-    console.log("【3號機場】取得訂閱資訊失敗:", err);
+    console.log("3號機場取得訂閱資訊失敗:", err);
     return;
   }
 
@@ -147,6 +145,7 @@ function bytesToSize(bytes) {
 
 function formatTime(time) {
   if (time < 1000000000000) time *= 1000;
+
   let dateObj = new Date(time);
   let year = dateObj.getFullYear();
   let month = dateObj.getMonth() + 1;
