@@ -38,7 +38,7 @@ console.log("【1號機場】面板刷新執行於: " + new Date().toISOString()
   }
 
   $done({
-    title: `${args.title}`,
+    title: args.title || "未命名機場",
     content: content.join("\n"),
     icon: args.icon || "tornado",
     "icon-color": args.color || "#DF4688",
